@@ -23,7 +23,7 @@ def test_calculate_arithmetic_rate_of_return(fn):
     fn_correct_outputs = OrderedDict([
         (
             'arithmetic_returns',
-            pd.Series([5.73471347, 0.27227070, 61.67539864, 8.20410208, 0.08932044],tickers)
+            pd.Series([4.77892789, 0.22689225, 51.39616553, 6.83675173, 0.07443370],tickers)
         
         )])
 

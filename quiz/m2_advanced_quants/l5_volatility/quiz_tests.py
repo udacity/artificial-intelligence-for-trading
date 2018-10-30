@@ -11,6 +11,7 @@ def test_calculate_simple_moving_average(fn):
     dates = generate_random_dates(6)
 
     fn_inputs = {
+        'rolling_window': 3,
         'close': pd.DataFrame(
             [
                 [21.050810483942833, 17.013843810658827, 10.984503755486879, 11.248093428369392, 12.961712733997235],
@@ -19,11 +20,10 @@ def test_calculate_simple_moving_average(fn):
                 [10.918933017418304, 17.9086438675435, 24.801265417692324, 12.488954191854916, 10.52435923388642],
                 [10.675971965144655, 12.749401436636365, 11.805257579935713, 21.539039489843024, 19.99766036804861],
                 [11.545495378369814, 23.981468434099405, 24.974763062186504, 36.031962102997689, 14.304332320024963]],
-            dates, tickers),
-    'rolling_window': 3}
+            dates, tickers)}
     fn_correct_outputs = OrderedDict([
         (
-            'returns',
+            'simple_moving_average',
             pd.DataFrame(
                 [
                     [np.nan, np.nan, np.nan, np.nan, np.nan],

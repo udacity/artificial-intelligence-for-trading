@@ -1,0 +1,5 @@
+cvxpy==1.0.3
+numpy==1.13.3
+pandas==0.21.1
+plotly==2.2.3
+scipy==1.0.0

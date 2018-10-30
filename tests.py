@@ -97,11 +97,77 @@ def generate_random_dates(n_days=None):
     return dates
 
 
+def assert_structure(received_obj, expected_obj, obj_name):
+    assert isinstance(received_obj, type(expected_obj)), \
+        'Wrong type for output {}. Got {}, expected {}'.format(obj_name, type(received_obj), type(expected_obj))
+
+    if hasattr(expected_obj, 'shape'):
+        assert received_obj.shape == expected_obj.shape, \
+            'Wrong shape for output {}. Got {}, expected {}'.format(obj_name, received_obj.shape, expected_obj.shape)
+    elif hasattr(expected_obj, '__len__'):
+        assert len(received_obj) == len(expected_obj), \
+            'Wrong len for output {}. Got {}, expected {}'.format(obj_name, len(received_obj), len(expected_obj))
+
+    if type(expected_obj) == pd.DataFrame:
+        assert set(received_obj.columns) == set(expected_obj.columns), \
+            'Incorrect columns for output {}\n' \
+            'COLUMNS:          {}\n' \
+            'EXPECTED COLUMNS: {}'.format(obj_name, sorted(received_obj.columns), sorted(expected_obj.columns))
+
+        # This is to catch a case where __equal__ says it's equal between different types
+        assert set([type(i) for i in received_obj.columns]) == set([type(i) for i in expected_obj.columns]), \
+            'Incorrect types in columns for output {}\n' \
+            'COLUMNS:          {}\n' \
+            'EXPECTED COLUMNS: {}'.format(obj_name, sorted(received_obj.columns), sorted(expected_obj.columns))
+
+        for column in expected_obj.columns:
+            assert received_obj[column].dtype == expected_obj[column].dtype, \
+                'Incorrect type for output {}, column {}\n' \
+                'Type:          {}\n' \
+                'EXPECTED Type: {}'.format(obj_name, column, received_obj[column].dtype, expected_obj[column].dtype)
+
+    if type(expected_obj) in {pd.DataFrame, pd.Series}:
+        assert set(received_obj.index) == set(expected_obj.index), \
+            'Incorrect indices for output {}\n' \
+            'INDICES:          {}\n' \
+            'EXPECTED INDICES: {}'.format(obj_name, sorted(received_obj.index), sorted(expected_obj.index))
+
+        # This is to catch a case where __equal__ says it's equal between different types
+        assert set([type(i) for i in received_obj.index]) == set([type(i) for i in expected_obj.index]), \
+            'Incorrect types in indices for output {}\n' \
+            'INDICES:          {}\n' \
+            'EXPECTED INDICES: {}'.format(obj_name, sorted(received_obj.index), sorted(expected_obj.index))
+
+
+def does_data_match(obj_a, obj_b):
+    if type(obj_a) == pd.DataFrame:
+        # Sort Columns
+        obj_b = obj_b.sort_index(1)
+        obj_a = obj_a.sort_index(1)
+
+    if type(obj_a) in {pd.DataFrame, pd.Series}:
+        # Sort Indices
+        obj_b = obj_b.sort_index()
+        obj_a = obj_a.sort_index()
+    try:
+        data_is_close = np.isclose(obj_b, obj_a, equal_nan=True)
+    except TypeError:
+        data_is_close = obj_b == obj_a
+    else:
+        if isinstance(obj_a, collections.Iterable):
+            data_is_close = data_is_close.all()
+
+    return data_is_close
+
+
 def assert_output(fn, fn_inputs, fn_expected_outputs, check_parameter_changes=True):
     assert type(fn_expected_outputs) == OrderedDict
 
-    fn_outputs = OrderedDict()
-    fn_inputs_passed_in = copy.deepcopy(fn_inputs)
+    if check_parameter_changes:
+        fn_inputs_passed_in = copy.deepcopy(fn_inputs)
+    else:
+        fn_inputs_passed_in = fn_inputs
+
     fn_raw_out = fn(**fn_inputs_passed_in)
 
     # Check if inputs have changed
@@ -112,6 +178,7 @@ def assert_output(fn, fn_inputs, fn_expected_outputs, check_parameter_changes=Tr
             assert passed_in_unchanged, 'Input parameter "{}" has been modified inside the function. ' \
                                         'The function shouldn\'t modify the function parameters.'.format(input_name)
 
+    fn_outputs = OrderedDict()
     if len(fn_expected_outputs) == 1:
         fn_outputs[list(fn_expected_outputs)[0]] = fn_raw_out
     elif len(fn_expected_outputs) > 1:
@@ -129,48 +196,7 @@ def assert_output(fn, fn_inputs, fn_expected_outputs, check_parameter_changes=Tr
         fn_expected_outputs)
 
     for fn_out, (out_name, expected_out) in zip(fn_outputs.values(), fn_expected_outputs.items()):
-        assert isinstance(fn_out, type(expected_out)),\
-            'Wrong type for output {}. Got {}, expected {}'.format(out_name, type(fn_out), type(expected_out))
+        assert_structure(fn_out, expected_out, out_name)
+        correct_data = does_data_match(expected_out, fn_out)
 
-        if hasattr(expected_out, 'shape'):
-            assert fn_out.shape == expected_out.shape, \
-                'Wrong shape for output {}. Got {}, expected {}'.format(out_name, fn_out.shape, expected_out.shape)
-        elif hasattr(expected_out, '__len__'):
-            assert len(fn_out) == len(expected_out), \
-                'Wrong len for output {}. Got {}, expected {}'.format(out_name, len(fn_out), len(expected_out))
-
-        if type(expected_out) == pd.DataFrame:
-            assert set(fn_out.columns) == set(expected_out.columns), \
-                'Incorrect columns for output {}\n' \
-                'COLUMNS:          {}\n' \
-                'EXPECTED COLUMNS: {}'.format(out_name, sorted(fn_out.columns), sorted(expected_out.columns))
-
-            for column in expected_out.columns:
-                assert fn_out[column].dtype == expected_out[column].dtype, \
-                    'Incorrect type for output {}, column {}\n' \
-                    'Type:          {}\n' \
-                    'EXPECTED Type: {}'.format(out_name, column, fn_out[column].dtype, expected_out[column].dtype)
-
-            # Sort Columns
-            fn_out = fn_out.sort_index(1)
-            expected_out = expected_out.sort_index(1)
-
-        if type(expected_out) in {pd.DataFrame, pd.Series}:
-            assert set(fn_out.index) == set(expected_out.index), \
-                'Incorrect indices for output {}\n' \
-                'INDICES:          {}\n' \
-                'EXPECTED INDICES: {}'.format(out_name, sorted(fn_out.index), sorted(expected_out.index))
-
-            # Sort Indices
-            fn_out = fn_out.sort_index()
-            expected_out = expected_out.sort_index()
-
-        try:
-            out_is_close = np.isclose(fn_out, expected_out, equal_nan=True)
-        except TypeError:
-            out_is_close = fn_out == expected_out
-        else:
-            if isinstance(expected_out, collections.Iterable):
-                out_is_close = out_is_close.all()
-
-        assert out_is_close, err_message
+        assert correct_data, err_message
