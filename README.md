@@ -1,5 +1,5 @@
 # AI in Trading NanoDegree (AITND)
-This repository contains code for Udacity's [AI in Trading NanoDegree](https://www.udacity.com/course/nd880).
+This repository contains code for Udacity's [AI in Trading NanoDegree](https://udacity.com/course/ai-for-trading--nd880).
 ## Repository File Structure
     .
     ├── project/             # Code for projects in the classroom
