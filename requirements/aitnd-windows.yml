@@ -1,0 +1,27 @@
+name: aitnd
+dependencies:
+    - python=3.6 #3.7 is not compatible with
+    - colour
+    - cycler
+    - ipykernel
+    - jupyter
+    - matplotlib # needed for cvxpy
+    - nb_conda
+    - numpy
+    - pandas=0.22
+    - pyhamcrest
+    - pyparsing
+    - python-dateutil
+    - pytz
+    - requests
+    - scipy
+    - scikit-learn
+    - six
+    - tqdm
+    - pip:
+        - alphalens
+        - cvxpy
+        - ecos
+        - cvxpy
+        - plotly==2.4.1 # native install was 3.4.1 but plotly.graph_objs.Table has a bug
+        - zipline
