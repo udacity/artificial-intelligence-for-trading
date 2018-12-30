@@ -12,6 +12,14 @@ This repository contains code for Udacity's [AI in Trading NanoDegree](https://u
 
 ## No Data
 We don't have a licence to redistribute the data to you. We're working on alternatives to this problem.
+To obtain the input files for project 1-3, open each project's notebook and run
+```python
+import numpy as np
+df = pd.read_csv('../../data/project_x/eod-quotemedia.csv')
+df.to_csv('eod-quotemedia.csv')
+```
+where you have to replace `x` with `1,2 or 3`. Now, you are able to download the just created file. Create the `data/project_x` folders in the top directory of your local repo and place the files there. 
+For project 4 this is a bit more involved.
 
 ## My Repo
 This repo is a fork of the udacity repo that complements the AI Trading Nanodegree.
@@ -34,14 +42,3 @@ import sys
 sys.executable
 ```
 from the command line, as well as a jupyter notebook. Both should return somthing like ```'...\\Anaconda3\\envs\\aitnd\\python.exe'```. You might have to change the kernel used by each notebook manually to aitnd (Kernel -> Change kernel).
-
-### Data
-
-To obtain the input files for project 1-3, open each project's notebook and run
-```python
-import numpy as np
-df = pd.read_csv('../../data/project_1/eod-quotemedia.csv')
-df.to_csv('eod-quotemedia.csv')
-```
-Now you can click on the jupyter icon and download the just created file. Create the `data/project_x` folders in the top directory of your local repo and place the files there. 
-For project 4 this is a bit more involved.
