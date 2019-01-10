@@ -1,7 +1,6 @@
 import numpy as np
 import pandas as pd
 import time
-import alphalens as al
 from zipline.assets._assets import Equity  # Required for USEquityPricing
 from zipline.pipeline.data import USEquityPricing
 from zipline.pipeline.classifiers import Classifier
@@ -71,42 +70,3 @@ def get_pricing(data_portal, trading_calendar, assets, start_date, end_date, fie
         data_frequency='daily')
 
 
-def make_factor_plot(df, data_portal, trading_calendar, start_date, end_date):
-    assets = df.index.levels[1].values.tolist()
-    df = df.dropna()
-    pricing = get_pricing(
-        data_portal,
-        trading_calendar,
-        assets,
-        start_date,
-        end_date,
-        'close'
-    )
-    
-    factor_names = df.columns
-    factor_data = {}
-
-    start_time = time.clock()
-    for factor in factor_names:
-        print("Formatting factor data for: " + factor)
-        factor_data[factor] = al.utils.get_clean_factor_and_forward_returns(
-            factor=df[factor],
-            prices=pricing,
-            periods=[1]
-        )
-    end_time = time.clock()
-    print("Time to get arrange factor data: %.2f secs" % (end_time - start_time))
-    
-    ls_factor_returns = []
-
-    start_time = time.clock()
-    for i, factor in enumerate(factor_names):
-        ls = al.performance.factor_returns(factor_data[factor])
-        ls.columns = [factor]
-        ls_factor_returns.append(ls)
-    end_time = time.clock()
-    print("Time to generate long/short returns: %.2f secs" % (end_time - start_time))
-
-    df_ls_factor_returns = pd.concat(ls_factor_returns, axis=1)
-    (1+df_ls_factor_returns).cumprod().plot(title='Factor Returns');
-    return df_ls_factor_returns
