@@ -1,0 +1,12 @@
+index,Sector,sector_id
+0,Healthcare,0
+1,Technology,1
+7,Consumer Defensive,2
+8,Industrials,3
+10,Utilities,4
+14,Financial Services,5
+17,Real Estate,6
+24,Communication Services,7
+25,Consumer Cyclical,8
+26,Energy,9
+31,Basic Materials,10
