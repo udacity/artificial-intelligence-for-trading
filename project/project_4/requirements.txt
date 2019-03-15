@@ -12,5 +12,6 @@ requests==2.18.4
 scipy==1.0.0
 scikit-learn==0.19.1
 six==1.11.0
+tables==3.3.0
 tqdm==4.19.5
 zipline===1.2.0

@@ -405,7 +405,7 @@ def test_optimal_holdings_get_constraints(cl):
         'weights': cvx.Variable(weights_size)}
     fn_correct_outputs = OrderedDict([
         (
-            'solution', np.array([-0.01095332, 0.00275889, 0.02684955, -0.01865511]))])
+            'solution', np.array([-0.01095207, 0.0027576, 0.02684978, -0.01865519]))])
 
     def solve_problem(weights):
         x = np.diag(np.arange(x_size))
